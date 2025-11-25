@@ -3,7 +3,7 @@
     "AgendaApi": {
       "commandName": "Project",
       "launchBrowser": false,
-      "launchUrl": "api/agenda",
+      "launchUrl": "api/contatos",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

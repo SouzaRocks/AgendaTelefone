@@ -38,15 +38,16 @@ namespace AgendaApi.Controllers
         [Route("/api/contatos/nome/{nome}")]
         public IActionResult GetAgendaByName(string nome)
         {
-            var registro = AgendaList.Registros
-                .Values
-                .FirstOrDefault(r => r.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase));
+            var registros = AgendaList.Registros.Values
+                .Where(r => r.Nome != null &&r.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            if (registro == null)
-                return NotFound();
+            if (registros == null || !registros.Any())
+                return NotFound("Nenhum registro encontrado com o texto informado.");
 
-            return Ok(registro);
+            return Ok(registros);
         }
+
 
         //Cadastra novo registro
         [HttpPost]
