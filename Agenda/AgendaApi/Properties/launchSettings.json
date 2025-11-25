@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "AgendaApi": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "launchUrl": "api/agenda",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57413;http://localhost:57414"
+    }
+  }
+}
