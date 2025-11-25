@@ -34,6 +34,24 @@ namespace AgendaApi.Controllers
             return Ok(agenda);
         }
 
+        //Pesquisa registro por nome
+        [HttpGet("/api/contatos/pesquisar/{nome}")]
+        public IActionResult GetAgendaByNome(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                return BadRequest();
+
+            var registros = agendaRepository
+                .GetAll()
+                .Where(a => a.Nome != null &&
+                            a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (!registros.Any())
+                return NotFound();
+
+            return Ok(registros);
+        }
 
         //Cadastra novo registro
         [HttpPost("/api/contatos/")]
@@ -47,18 +65,31 @@ namespace AgendaApi.Controllers
                 return BadRequest();
             }
 
-            var existingAgenda = agendaRepository.GetById(registro.Id);
-            if (existingAgenda != null)
-                return Conflict(registro);
+            //Verifica se já existe contato com mesmo nome (case-insensitive)
+            var existingAgendaByNome = agendaRepository
+                .GetAll()
+                .FirstOrDefault(a => a.Nome != null &&
+                                     a.Nome.Equals(registro.Nome, StringComparison.OrdinalIgnoreCase));
 
+            if (existingAgendaByNome != null)
+            {
+                return Conflict();
+            }
+
+            //Verifica se já existe contato com mesmo Id
+            var existingAgendaById = agendaRepository.GetById(registro.Id);
+            if (existingAgendaById != null)
+            {
+                return Conflict();
+            }
 
             registro = agendaRepository.Create(registro);
-            return Created();
+            return Ok(registro);
         }
 
         //Atualiza registro
         [HttpPut("/api/contatos/{id}")]
-        public IActionResult CreateAgenda([FromBody] Agenda registro, int id)
+        public IActionResult UpdateAgenda([FromBody] Agenda registro, int id)
         {
             if (id != registro.Id)
                 return Conflict();
@@ -67,13 +98,23 @@ namespace AgendaApi.Controllers
             if (existingAgenda == null)
                 return NotFound();
 
+            // Verifica se já existe outro contato com o mesmo nome
+            var nomeDuplicado = agendaRepository
+                .GetAll()
+                .Any(a => a.Id != registro.Id &&
+                          a.Nome != null &&
+                          a.Nome.Equals(registro.Nome, StringComparison.OrdinalIgnoreCase));
+
+            if (nomeDuplicado)
+                return Conflict();
+
             var retorno = agendaRepository.Update(existingAgenda, registro);
 
             return Ok(retorno);
         }
 
+
         //Exclui registro
-      
         [HttpDelete("/api/contatos/{id}")]
         public IActionResult Delete(int id)
         {
@@ -81,31 +122,13 @@ namespace AgendaApi.Controllers
             if (existingAgenda == null)
                 return NotFound();
 
-            agendaRepository.Delete(existingAgenda);
+            agendaRepository.Delete(id);
             return NoContent();
 
         }
 
 
 
-        //Pesquisa registro por nome
-        //Pesquisa registro por nome
-        [HttpGet("/api/contatos/pesquisar/{nome}")]
-        public IActionResult GetAgendaByNome(string nome)
-        {
-            if (string.IsNullOrWhiteSpace(nome))
-                return BadRequest();
-
-            var registros = agendaRepository
-                .GetAll()
-                .Where(a => a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (registros == null || !registros.Any())
-                return NotFound();
-
-            return Ok(registros);
-        }
 
 
 

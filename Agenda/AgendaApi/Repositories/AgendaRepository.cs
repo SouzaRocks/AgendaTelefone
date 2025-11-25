@@ -37,14 +37,14 @@ namespace AgendaApi.Repositories
             existing.Nome = newAgenda.Nome;
             existing.Telefone = newAgenda.Telefone;
             
-            dbContext.Registros.Remove(existing);
+            dbContext.Registros.Update(existing);
             dbContext.SaveChanges();
 
             return true;
         }
 
 
-        public bool Delete(Agenda id)
+        public bool Delete(int id)
         {
             var registro = dbContext.Registros.Find(id);
             if (registro != null)
